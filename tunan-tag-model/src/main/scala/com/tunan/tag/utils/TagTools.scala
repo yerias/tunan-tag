@@ -112,7 +112,7 @@ object TagTools {
         (start, end)
       }
     )
-    // 2. 获取属性标签数据，解析规则rule
+    // 2. 获取属性标签数据，解析规则rulconvertIndexMape
     val ruleDF: DataFrame = tagDF
       .filter($"level" === 5) // 5级标签
       .select(
@@ -129,6 +129,42 @@ object TagTools {
     // 3. 返回标签规则
     ruleDF
   }
+
+  /**
+   * 将[属性标签]数据中[规则：rule与名称：name]转换[Map集合]
+   *
+   * @param tagDF 属性标签数据
+   * @return Map 集合
+   */
+  /*def convertIndexMap(clusterCenters: Array[linalg.Vector], tagDF: DataFrame) = {
+    import tagDF.sparkSession.implicits._
+    val rulesMap: Map[String, Long] = tagDF
+      //获取属性标签数据
+      .filter($"level" === 5)
+      //选择标签规则rule和标签ID
+      .select($"rule", $"name")
+      //转换为DataSet
+      .as[(String, Long)]
+      //转换为RDD
+      .rdd
+      //转换为Map集合
+      .collectAsMap().toMap
+    val centerIndexArray: Array[((Int, Double), Int)] = clusterCenters.zipWithIndex
+      .map {
+        case (vector, centerIndex) => (centerIndex, vector.toArray.sum)
+      }
+      .sortBy {
+        case (_, rfm) => -rfm
+      }
+      .zipWithIndex
+    //9 聚类类簇关联属性标签数据rule,对应聚类类簇与标签tagId
+    val indexTagMap: Map[Int, Long] = centerIndexArray.map {
+      case ((centerIndex, _), index) =>
+        val tagName = rulesMap(index.toString)
+        (centerIndex, tagName)
+    }.toMap
+    indexTagMap
+  }*/
   def main(args: Array[String]): Unit = {
     println(getTagTable(2323))
   }
