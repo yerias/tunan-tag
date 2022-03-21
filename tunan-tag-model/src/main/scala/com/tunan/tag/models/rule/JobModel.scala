@@ -1,5 +1,9 @@
 package com.tunan.tag.models.rule
 
+import com.tunan.tag.Constant._
+import com.tunan.tag.config.ModelConfig._
+import com.tunan.tag.meta.HBaseMeta
+import com.tunan.tag.utils.HBaseTools
 import org.apache.hadoop.hbase.client.{Put, Result}
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable
 import org.apache.spark.SparkConf
@@ -39,8 +43,8 @@ object JobModel extends Logging {
       val session = SparkSession.builder()
         .config(sparkConf)
         .enableHiveSupport() // 启用与Hive集成
-        .config("hive.metastore.uris", Constant.HIVE_METASTORE) // 设置与Hive集成: 读取Hive元数据MetaStore服务
-        .config("spark.sql.warehouse.dir", Constant.HIVE_WAREHOUSE) // 设置数据仓库目录
+        .config("hive.metastore.uris", HIVE_METASTORE_VALUE) // 设置与Hive集成: 读取Hive元数据MetaStore服务
+        .config("spark.sql.warehouse.dir", HIVE_WAREHOUSE_VALUE) // 设置数据仓库目录
         .getOrCreate()
       // c. 返回会话对象
       session
@@ -70,12 +74,12 @@ object JobModel extends Logging {
       |""".stripMargin
 
     val basicTagDF = spark.read
-      .format("jdbc")
-      .option("driver", Constant.SQL_DRIVER)
-      .option("url", Constant.SQL_URL)
-      .option("dbtable", tagTable)
-      .option("user", Constant.SQL_USER)
-      .option("password", Constant.SQL_PSWD)
+      .format(JDBC)
+      .option(JDBC_DRIVER_KEY, JDBC_DRIVER_VALUE)
+      .option(JDBC_URL_KEY, JDBC_URL_VALUE)
+      .option(JDBC_DBTable_KEY, tagTable)
+      .option(JDBC_USERNAME_KEY, JDBC_USERNAME_VALUE)
+      .option(JDBC_PASSWORD_KEY, JDBC_PASSWORD_VALUE)
       .load()
     basicTagDF.persist(StorageLevel.MEMORY_AND_DISK)
     //basicTagDF.printSchema()
@@ -149,7 +153,7 @@ object JobModel extends Logging {
     // 4. 5. 保存画像标签数据至HBase表
     // TODO: 将标签数据存储到HBase表中：用户画像标签表 -> tbl_profile
     HBaseTools.write(
-      modelDF, Constant.ZOOKEEPER_HOSTS, Constant.ZOOKEEPER_port,
+      modelDF, ZOOKEEPER_HOSTS_VALUE, ZOOKEEPER_PORT_VALUE,
       "tbl_profile", "user", "userId"
     )
 

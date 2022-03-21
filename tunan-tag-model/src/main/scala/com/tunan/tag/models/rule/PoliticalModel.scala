@@ -1,5 +1,7 @@
 package com.tunan.tag.models.rule
 
+import com.tunan.tag.models.BasicModel
+import com.tunan.tag.utils.TagTools
 import org.apache.spark.sql.DataFrame
 
 /**

@@ -1,5 +1,10 @@
 package com.tunan.tag.models
 
+import com.tunan.tag.Constant._
+import com.tunan.tag.ModelType
+import com.tunan.tag.config.ModelConfig._
+import com.tunan.tag.meta.HBaseMeta
+import com.tunan.tag.utils.SparkUtils
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.{DataFrame, SaveMode, SparkSession}
 import org.apache.spark.storage.StorageLevel
@@ -23,15 +28,20 @@ abstract class AbstractModel(modelName: String, modelType: ModelType) extends Lo
     spark = SparkUtils.createSparkSession(this.getClass, isHive)
   }
 
-  // 2. 准备标签数据：依据标签ID从MySQL数据库表tbl_basic_tag获取标签数据
+  /**  2. 准备标签数据：依据标签ID从MySQL数据库表tbl_basic_tag获取标签数据
+  * @Description 传入标签id，获取标签规则
+  * @Date 16:08 2022/3/21
+  * @Param [tagId]
+  * @return [long]
+  **/
   def getTagData(tagId: Long): DataFrame = {
     spark.read
-      .format("jdbc")
-      .option("driver", ModelConfig.MYSQL_JDBC_DRIVER)
-      .option("url", ModelConfig.MYSQL_JDBC_URL)
-      .option("dbtable", ModelConfig.tagTable(tagId))
-      .option("user", ModelConfig.MYSQL_JDBC_USERNAME)
-      .option("password", ModelConfig.MYSQL_JDBC_PASSWORD)
+      .format(JDBC)
+      .option(JDBC_DRIVER_KEY, JDBC_DRIVER_VALUE)
+      .option(JDBC_URL_KEY, JDBC_URL_VALUE)
+      .option(JDBC_DBTable_KEY, tagTable(tagId))
+      .option(JDBC_USERNAME_KEY, JDBC_USERNAME_VALUE)
+      .option(JDBC_PASSWORD_KEY, JDBC_PASSWORD_VALUE)
       .load()
   }
 
@@ -56,35 +66,40 @@ abstract class AbstractModel(modelName: String, modelType: ModelType) extends Lo
     selectFieldNames=id,gender
     */
     val ruleMap: Map[String, String] = tagRule
-      .split("\n")
+      .split(META_RULE_SPLIT_LINE)
       .map { line =>
-        val Array(attrName, attrValue) = line.trim.split("=")
+        val Array(attrName, attrValue) = line.trim.split(META_RULE_SPLIT_FILET)
         (attrName, attrValue)
       }
       .toMap
 
-    // 3.c. 依据标签规则中inType类型获取数据
+    /**
+    * @Description  3.c. 依据标签规则中inType类型获取数据
+    * @Date 16:17 2022/3/21
+    * @Param [tagDF]
+    * @return [org.apache.spark.sql.Dataset<org.apache.spark.sql.Row>]
+     *
+        businessDF = HBaseTools.read(
+        spark, hbaseMeta.zkHosts, hbaseMeta.zkPort,
+        hbaseMeta.hbaseTable,
+        hbaseMeta.family,
+        hbaseMeta.selectFieldNames.split(",").toSeq
+
+        依据条件到HBase中获取业务数据
+    **/
     var businessDF: DataFrame = null
     if ("hbase".equals(ruleMap("inType").toLowerCase())) {
       // 规则数据封装到HBaseMeta中
       val hbaseMeta: HBaseMeta = HBaseMeta.getHBaseMeta(ruleMap)
 
-      // 依据条件到HBase中获取业务数据
-      /*businessDF = HBaseTools.read(
-        spark, hbaseMeta.zkHosts, hbaseMeta.zkPort,
-        hbaseMeta.hbaseTable,
-        hbaseMeta.family,
-        hbaseMeta.selectFieldNames.split(",").toSeq
-      )*/
-
       businessDF = spark.read
-        .format("hbase")
-        .option("zkHosts", hbaseMeta.zkHosts)
-        .option("zkPort", hbaseMeta.zkPort)
-        .option("hbaseTable", hbaseMeta.hbaseTable)
-        .option("family", hbaseMeta.family)
-        .option("selectFields", hbaseMeta.selectFieldNames)
-        .option("whereFields", hbaseMeta.filterConditions)
+        .format(HBASE)
+        .option(HBASE_ZK_QUORUM_KEY, hbaseMeta.zkHosts)
+        .option(HBASE_ZK_PORT_KEY, hbaseMeta.zkPort)
+        .option(HBASE_TABLE_NAME_KEY, hbaseMeta.hbaseTable)
+        .option(HBASE_TABLE_FAMILY_KEY, hbaseMeta.family)
+        .option(HBASE_TABLE_SELECT_FIELDS_KEY, hbaseMeta.selectFieldNames)
+        .option(HBASE_TABLE_FILTER_COLUMN_KEY, hbaseMeta.filterConditions)
         .load()
     } else {
       // 如果未获取到数据，直接抛出异常
@@ -116,12 +131,12 @@ abstract class AbstractModel(modelName: String, modelType: ModelType) extends Lo
     // 使用注册外部数据源来写入hbase
     modelDF.write
       .mode(SaveMode.Overwrite)
-      .format("hbase")
-      .option("zkHosts", ModelConfig.PROFILE_TABLE_ZK_HOSTS)
-      .option("zkPort", ModelConfig.PROFILE_TABLE_ZK_PORT)
-      .option("hbaseTable", ModelConfig.PROFILE_TABLE_NAME)
-      .option("family", ModelConfig.PROFILE_TABLE_FAMILY_USER)
-      .option("rowKeyColumn", ModelConfig.PROFILE_TABLE_ROWKEY_COL)
+      .format(HBASE)
+      .option(HBASE_ZK_QUORUM_KEY, HBASE_ZK_HOSTS_VALUE)
+      .option(HBASE_ZK_PORT_KEY, HBASE_ZK_PORT_VALUE)
+      .option(HBASE_TABLE_NAME_KEY, HBASE_TABLE_NAME_VALUE)
+      .option(HBASE_TABLE_FAMILY_KEY, HBASE_TABLE_FAMILY_VALUE)
+      .option(HBASE_TABLE_ROWKEY_NAME_KEY, HBASE_ROWKEY_COL_VALUE)
       .save()
   }
 

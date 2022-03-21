@@ -1,17 +1,17 @@
 package com.tunan.tag.meta
 
 /**
- * @Author: chb
- * @Date: 2021/4/21 15:13
- * @E-Mail:
- * @DESC: HBase 元数据解析存储，具体数据字段格式如下所示：
+* @Description  HBase 元数据解析存储，具体数据字段格式如下所示：
+* @Date 15:26 2022/3/21
+* @Param
+* @return
  *        inType=hbase
  *        zkHosts=bigdata-cdh01.itcast.cn
  *        zkPort=2181
  *        hbaseTable=tbl_tag_users
  *        family=detail
  *        selectFieldNames=id,gender
- */
+**/
 case class HBaseMeta(zkHosts: String,
                      zkPort: String,
                      hbaseTable: String,

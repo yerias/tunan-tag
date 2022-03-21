@@ -1,5 +1,16 @@
 package com.tunan.tag.models
 
+import com.tunan.tag.Constant._
+import com.tunan.tag.config.ModelConfig._
+import com.tunan.tag.meta.HBaseMeta
+import com.tunan.tag.utils.HBaseTools
+import org.apache.hadoop.hbase.client.{Put, Result}
+import org.apache.hadoop.hbase.io.ImmutableBytesWritable
+import org.apache.spark.SparkConf
+import org.apache.spark.internal.Logging
+import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.storage.StorageLevel
+
 /**
  * @Author: chb
  * @Date: 2021/4/23 8:44
@@ -9,6 +20,7 @@ package com.tunan.tag.models
 trait BasicModel extends Logging {
   // 变量声明
   var spark: SparkSession = _
+
 
   // 1. 初始化：构建SparkSession实例对象
   def init(): Unit = {
@@ -24,9 +36,10 @@ trait BasicModel extends Logging {
     spark = SparkSession.builder()
       .config(sparkConf)
       .enableHiveSupport() // 启用与Hive集成
-      .config("hive.metastore.uris", Constant.HIVE_METASTORE) // 设置与Hive集成: 读取Hive元数据MetaStore服务
-      .config("spark.sql.warehouse.dir", Constant.HIVE_WAREHOUSE) // 设置数据仓库目录
+      .config("hive.metastore.uris", HIVE_METASTORE_VALUE) // 设置与Hive集成: 读取Hive元数据MetaStore服务
+      .config("spark.sql.warehouse.dir", HIVE_WAREHOUSE_VALUE) // 设置数据仓库目录
       .getOrCreate()
+
   }
 
 
@@ -59,12 +72,12 @@ trait BasicModel extends Logging {
          |""".stripMargin
     // 2.2. 获取标签数据
     val tagDF: DataFrame = spark.read
-      .format("jdbc")
-      .option("driver", Constant.SQL_DRIVER)
-      .option("url", Constant.SQL_URL)
-      .option("dbtable", tagTable)
-      .option("user", Constant.SQL_USER)
-      .option("password", Constant.SQL_PSWD)
+      .format(JDBC)
+      .option(JDBC_DRIVER_KEY, JDBC_DRIVER_VALUE)
+      .option(JDBC_URL_KEY, JDBC_URL_VALUE)
+      .option(JDBC_DBTable_KEY, tagTable)
+      .option(JDBC_USERNAME_KEY, JDBC_USERNAME_VALUE)
+      .option(JDBC_PASSWORD_KEY, JDBC_PASSWORD_VALUE)
       .load()
     // 2.3. 返回数据
     tagDF
@@ -79,6 +92,8 @@ trait BasicModel extends Logging {
    * @return
    */
   def getBusinessData(tagDF: DataFrame): DataFrame = {
+
+    import tagDF.sparkSession.implicits._
     // 3.1. 4级标签规则rule
     val tagRule: String = tagDF
       .filter($"level" === 4)
@@ -132,7 +147,7 @@ trait BasicModel extends Logging {
    */
   def saveTag(modelDF: DataFrame): Unit = {
     HBaseTools.write(
-      modelDF, Constant.ZOOKEEPER_HOSTS, Constant.ZOOKEEPER_port,
+      modelDF, ZOOKEEPER_HOSTS_VALUE, ZOOKEEPER_PORT_VALUE,
       "tbl_profile", "user", "userId"
     )
   }

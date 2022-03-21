@@ -1,5 +1,8 @@
 package com.tunan.tag.models.statistics
 
+import com.tunan.tag.ModelType
+import com.tunan.tag.models.AbstractModel
+import com.tunan.tag.utils.TagTools
 import org.apache.spark.sql.DataFrame
 
 /**
