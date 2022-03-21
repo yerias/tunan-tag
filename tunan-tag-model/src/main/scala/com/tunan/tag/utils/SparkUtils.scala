@@ -1,21 +1,23 @@
 package com.tunan.tag.utils
 
-import java.util
+import com.tunan.tag.Constant._
+import com.tunan.tag.config.ModelConfig._
 
+import java.util
 import com.typesafe.config.{Config, ConfigFactory, ConfigValue}
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
 
 /**
- * @Author: chb
- * @Date: 2021/4/23 15:12
- * @E-Mail:
- * @DESC: 创建SparkSession对象工具类
- */
+* @Description 创建SparkSession对象工具类
+* @Date 11:35 2022/3/21
+* @Param
+* @return
+**/
 object SparkUtils {
 
   /**
-   * 加载Spark Application默认配置文件，设置到SparkConf中
+   * 加载Spark SPARKlication默认配置文件，设置到SparkConf中
    * @param resource 资源配置文件名称
    * @return SparkConf对象
    */
@@ -49,8 +51,8 @@ object SparkUtils {
     // 1. 构建SparkConf对象
     val sparkConf: SparkConf = loadConf(resource = "spark.properties")
     // 2. 判断应用是否是本地模式运行，如果是设置
-    if(ModelConfig.APP_IS_LOCAL){
-      sparkConf.setMaster(ModelConfig.APP_SPARK_MASTER)
+    if(SPARK_IS_LOCAL_VALUE){
+      sparkConf.setMaster(SPARK_SPARK_MASTER_VALUE)
     }
     // 3. 创建SparkSession.Builder对象
     var builder: SparkSession.Builder = SparkSession.builder()
@@ -58,19 +60,15 @@ object SparkUtils {
       .config(sparkConf)
 
     // 4. 判断应用是否集成Hive，如果集成，设置Hive MetaStore地址
-    // 如果在config.properties中设置集成Hive，表示所有SparkApplication都集成 Hive；否则判断isHive，表示针对某个具体应用是否集成Hive
-    if(ModelConfig.APP_IS_HIVE || isHive){
+    // 如果在config.properties中设置集成Hive，表示所有SparkSPARKlication都集成 Hive；否则判断isHive，表示针对某个具体应用是否集成Hive
+    if(SPARK_IS_HIVE_VALUE || isHive){
       builder = builder
-        .config("hive.metastore.uris", ModelConfig.APP_HIVE_META_STORE_URL)
+        .config(SPARK_HIVE_METASTORE_URL_KEY, SPARK_HIVE_METASTORE_URL_VALUE)
         .enableHiveSupport()
     }
     // 5. 获取SparkSession对象
     val session = builder.getOrCreate()
     // 6. 返回
     session
-  }
-
-  def main(args: Array[String]): Unit = {
-    loadConf("spark.properties")
   }
 }

@@ -1,5 +1,7 @@
 package com.tunan.tag.models.statistics
 
+import com.tunan.tag.ModelType
+import com.tunan.tag.models.AbstractModel
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.types.IntegerType

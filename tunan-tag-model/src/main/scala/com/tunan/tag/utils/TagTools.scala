@@ -23,18 +23,19 @@ object TagTools {
        | `name`,
        | `rule`,
        | `level`
-       |FROM `profile_tags`.`tbl_basic_tag`
+       |FROM `sys_tag`.`tag_basic_tag`
        |WHERE id = $pid
        |UNION
        |SELECT `id`,
        | `name`,
        | `rule`,
        | `level`
-       |FROM `profile_tags`.`tbl_basic_tag`
+       |FROM `sys_tag`.`tag_basic_tag`
        |WHERE pid = $pid
        |ORDER BY `level` ASC, `id` ASC
        |) AS basic_tag
        |""".stripMargin
+
     tagTable
   }
 

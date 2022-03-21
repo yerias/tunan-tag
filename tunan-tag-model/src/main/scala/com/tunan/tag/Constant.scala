@@ -1,25 +1,34 @@
 package com.tunan.tag
 
-/**
- * @Author: chb
- * @Date: 2021/4/22 8:45
- * @E-Mail:
- * @DESC:
- */
 object Constant {
-  val host = "192.168.80.10"
-  val HIVE_METASTORE = s"thrift://chb2:9083"
-  val HIVE_WAREHOUSE = s"hdfs://chb3:8020/user/hive/warehouse"
 
-  val ZOOKEEPER_HOSTS = host
-  val ZOOKEEPER_port = "2181"
+    val HBASE:String = "hbase"
+    val HBASE_ZK_QUORUM_KEY: String = "hbase.zookeeper.quorum"
+    val PARAM_HBASE_ZK_QUORUM_VALUE: String = "zkHosts"
+    val HBASE_ZK_PORT_KEY: String = "hbase.zookeeper.property.clientPort"
+    val PARAM_HBASE_ZK_PORT_VALUE: String = "zkPort"
+    val HBASE_TABLE_NAME_KEY: String = "hbaseTable"
+    val HBASE_TABLE_FAMILY_KEY: String = "family"
+    val HBASE_FIELDS_SEPARATOR: String = ","
+    val HBASE_TABLE_SELECT_FIELDS_KEY: String = "selectFields"
+    val HBASE_TABLE_ROWKEY_NAME_KEY: String = "rowKeyColumn"
+    val HBASE_TABLE_FILTER_COLUMN_KEY: String = "whereFields"
 
-  // 数据库
-  val SQL_DRIVER = "com.mysql.jdbc.Driver"
-  val SQL_URL = s"jdbc:mysql://chb1:3306/?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC"
-  val SQL_USER = "root"
-  val SQL_PSWD = "123456"
+    val JDBC:String = "jdbc"
+    val JDBC_DRIVER_KEY:String = "driver"
+    val JDBC_URL_KEY:String = "url"
+    val JDBC_DBTable_KEY:String = "dbtable"
+    val JDBC_USERNAME_KEY:String = "user"
+    val JDBC_PASSWORD_KEY:String = "password"
 
-  val TAG_TABLE_HBASE = "tbl_profile"
 
+    val META_RULE_SPLIT_LINE = "\\n"
+    val META_RULE_SPLIT_FILET = "="
+
+
+    val SPARK_HIVE_METASTORE_URL_KEY = "hive.metastore.uris"
+
+
+    def main(args: Array[String]): Unit = {
+    }
 }
