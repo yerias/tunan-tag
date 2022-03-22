@@ -21,28 +21,6 @@ object ModelConfig {
 	lazy val JDBC_USERNAME_VALUE: String = config.getString("mysql.jdbc.username")
 	lazy val JDBC_PASSWORD_VALUE: String = config.getString("mysql.jdbc.password")
 
-	// Basic Tag table config
-	def tagTable(tagId: Long): String = {
-		s"""
-		   |(
-		   |SELECT `id`,
-		   | `name`,
-		   | `rule`,
-		   | `level`
-		   |FROM `sys_tag`.`tag_basic_tag`
-		   |WHERE id = $tagId
-		   |UNION
-		   |SELECT `id`,
-		   | `name`,
-		   | `rule`,
-		   | `level`
-		   |FROM `sys_tag`.`tag_basic_tag`
-		   |WHERE pid = $tagId
-		   |ORDER BY `level` ASC, `id` ASC
-		   |) AS basic_tag
-		   |""".stripMargin
-	}
-
 	// Profile table Config
 	lazy val HBASE_ZK_HOSTS_VALUE: String = config.getString("profile.hbase.zk.hosts")
 	lazy val HBASE_ZK_PORT_VALUE: String = config.getString("profile.hbase.zk.port")

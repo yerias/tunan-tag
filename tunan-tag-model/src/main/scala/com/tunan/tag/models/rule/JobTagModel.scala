@@ -36,13 +36,13 @@ class JobTagModel extends AbstractModel("职业标签", ModelType.MATCH) {
       businessDF, "job", tagDF
     )
     // 返回
-    modelDF
+    null
   }
 }
 
 object JobTagModel {
   def main(args: Array[String]): Unit = {
     val tagModel = new JobTagModel()
-    tagModel.executeModel(321L, isHive = true)
+    tagModel.executeModel(3, isHive = false)
   }
 }

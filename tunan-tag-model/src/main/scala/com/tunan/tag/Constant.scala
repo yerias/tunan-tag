@@ -4,8 +4,8 @@ object Constant {
 
     val HBASE:String = "hbase"
     val HBASE_ZK_QUORUM_KEY: String = "hbase.zookeeper.quorum"
-    val PARAM_HBASE_ZK_QUORUM_VALUE: String = "zkHosts"
     val HBASE_ZK_PORT_KEY: String = "hbase.zookeeper.property.clientPort"
+    val PARAM_HBASE_ZK_QUORUM_VALUE: String = "zkHosts"
     val PARAM_HBASE_ZK_PORT_VALUE: String = "zkPort"
     val HBASE_TABLE_NAME_KEY: String = "hbaseTable"
     val HBASE_TABLE_FAMILY_KEY: String = "family"

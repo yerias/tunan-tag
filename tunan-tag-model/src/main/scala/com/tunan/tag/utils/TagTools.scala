@@ -1,5 +1,7 @@
 package com.tunan.tag.utils
 
+import com.tunan.tag.Constant.{META_RULE_SPLIT_FILET, META_RULE_SPLIT_LINE}
+import com.tunan.tag.meta.HBaseMeta
 import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.functions.{col, udf}
 import org.apache.spark.sql.{DataFrame, SparkSession}
@@ -8,6 +10,44 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
  * 考虑到后续规则匹配类型标签开发，都涉及到规则匹配进行打标签，可以将抽象为函数，封装在工具类 TagTools 中以便使用
  */
 object TagTools {
+
+  def convertMapToMeta(tagDF: DataFrame): HBaseMeta ={
+    import tagDF.sparkSession.implicits._
+    // 3.a. 4级标签规则rule
+    val tagRule: String = tagDF
+        .filter($"level" === 3)
+        .head().getAs[String]("rule")
+
+    //		logInfo(s"==== 业务标签数据规则: {$tagRule} ====")
+
+
+    /*
+    * @Description 3.b. 解析标签规则，先按照换行\n符分割，再按照等号=分割
+    * @Date 8:36 2022/3/22
+    * @Param [tagDF]
+    * @return [org.apache.spark.sql.Dataset<org.apache.spark.sql.Row>]
+    *
+       inType=hbase
+       zkHosts=bigdata-cdh01.itcast.cn
+       zkPort=2181
+       hbaseTable=tbl_tag_users
+       family=detail
+       selectFieldNames=id,gender
+       whereCondition=modified#day#30
+    */
+    val ruleMap: Map[String, String] = tagRule
+        .split(META_RULE_SPLIT_LINE)
+        .map { line =>
+          val Array(attrName, attrValue) = line.trim.split(META_RULE_SPLIT_FILET)
+          (attrName, attrValue)
+        }.toMap
+
+    // 规则数据封装到HBaseMeta中
+    HBaseMeta.getHBaseMeta(ruleMap)
+  }
+
+
+
   /**
    *
    * @param pid
@@ -50,7 +90,7 @@ object TagTools {
     import tagDF.sparkSession.implicits._
     tagDF
       // 获取属性标签数据
-      .filter($"level" === 5)
+      .filter($"level" === 4)
       // 选择标签规则rule和标签Id
       .select($"rule", $"name")
       // 转换为Dataset
