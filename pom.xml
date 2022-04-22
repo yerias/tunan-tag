@@ -54,6 +54,12 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>redis.clients</groupId>
+                <artifactId>jedis</artifactId>
+                <version>${jedis.version}</version>
+            </dependency>
+
             <!-- 依赖Scala语言 -->
             <dependency>
                 <groupId>org.scala-lang</groupId>
