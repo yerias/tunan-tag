@@ -1,5 +1,8 @@
 package tunan.tag.etl.redis
 
+import com.typesafe.config.{Config, ConfigFactory}
+import redis.clients.jedis.{Jedis, JedisPool, JedisPoolConfig}
+
 /**
  * @Auther: 李沅芮
  * @Date: 2022/4/22 17:44
