@@ -35,7 +35,7 @@ object RedisUtils {
         jedis.close()
     }
 
-    // 测试连接
+     // 测试连接
     def main(args: Array[String]): Unit = {
         println(getJedis)
     }
