@@ -1,10 +1,14 @@
 package tunan.tag.etl.redis
 
-import java.util
-
 import com.alibaba.fastjson.JSON
 import org.apache.spark.sql.SparkSession
 import redis.clients.jedis.Jedis
+
+import java.text.SimpleDateFormat
+import java.time.{LocalDate, LocalDateTime}
+import java.time.format.DateTimeFormatter
+import java.util
+import java.util.Calendar
 
 /**
  * @Auther: 李沅芮
@@ -13,15 +17,34 @@ import redis.clients.jedis.Jedis
  */
 object UserDetailRedis {
 
-	def main(args: Array[String]): Unit = {
-		val spark = SparkSession
-		  .builder()
-		  .master("local[*]")
-		  .appName("UserDetailsRedis")
-		  .getOrCreate()
+    def getData(format: String, incDay: Integer): (String, String) = {
+        val df = new SimpleDateFormat(format);
+        val calendar = Calendar.getInstance();
+        val end = df.format(calendar.getTime)
+
+        calendar.add(Calendar.DATE, incDay);
+        val start = df.format(calendar.getTime)
+
+        (start, end)
+    }
+
+    def getCurrDayByYear(day:String,format: String, incDay: Long): String = {
+        val ft: DateTimeFormatter = DateTimeFormatter.ofPattern(format)
+        val ldt: LocalDate = LocalDate.parse(day, ft)
+        val time = ldt.plusYears(incDay)
+        val lastYear: String = time.format(DateTimeFormatter.ofPattern(format))
+        lastYear
+    }
+
+    def main(args: Array[String]): Unit = {
+        val spark = SparkSession
+            .builder()
+            .master("local[*]")
+            .appName("UserDetailsRedis")
+            .getOrCreate()
 
 
-		// spark 计算
+        // spark 计算
 
 		val totalDetails = new util.ArrayList[TotalDetail]
 		totalDetails.add(new TotalDetail(301, -0.06, "-6%", Array[Integer](6, 7, 1, 3, 9, 10, 5), Array[String]("04/01", "04/02", "04/03", "04/04", "04/05", "04/06", "04/07")))
