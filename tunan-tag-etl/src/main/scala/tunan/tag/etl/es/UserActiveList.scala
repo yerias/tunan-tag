@@ -16,7 +16,7 @@ spark-submit \
 --executor-cores 3 \
 --num-executors 3 \
 --jars $(echo `hdfs dfs -ls -C hdfs://nn:8020/spark/lib/\*.jar` | tr ' ' ',') \
-/root/test/wx-bigdata-etl-1.0.0.jar 20220421
+/root/test/wx-bigdata-etl-1.0.0.jar 20220425
 **/
 object UserActiveList {
     def main(args: Array[String]): Unit = {
